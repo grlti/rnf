@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RENAFORTE - Sistema de Controle de Serviços</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- HTML2Canvas & jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Chart.js DataLabels Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <img src="logo-renaforte.png" alt="Renaforte Logo" class="brand-logo">
+                <h1>RENAFORTE</h1>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-item active" onclick="switchTab('dashboard')">
+                    <span class="material-icons-round">dashboard</span>
+                    Dashboard
+                </button>
+                <button class="nav-item" onclick="switchTab('services')">
+                    <span class="material-icons-round">list_alt</span>
+                    Serviços
+                </button>
+            </nav>
+
+            <div class="user-profile">
+                <div class="avatar">A</div>
+                <div class="info">
+                    <p class="name">Administrador</p>
+                    <p class="role">Gerente</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <h2 id="page-title">Dashboard</h2>
+                <div class="actions">
+                    <button class="btn btn-secondary" onclick="exportPDF()" style="margin-right: 10px;">
+                        <span class="material-icons-round">picture_as_pdf</span>
+                        Exportar PDF
+                    </button>
+                    <button class="btn btn-primary" onclick="openModal()">
+                        <span class="material-icons-round">add</span>
+                        Novo Serviço
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="view active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="icon-box blue">
+                            <span class="material-icons-round">assignment</span>
+                        </div>
+                        <div class="stat-info">
+                            <p class="label">Total de Serviços</p>
+                            <h3 id="total-services">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon-box green">
+                            <span class="material-icons-round">attach_money</span>
+                            <!-- Using money icon as proxy for 'Value' or generic quantity -->
+                        </div>
+                        <div class="stat-info">
+                            <p class="label">Total Serviço Efetuado</p>
+                            <h3 id="total-quantity">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="min-width: 300px;">
+                        <!-- Custom Legend Replacement -->
+                        <div class="legend-box">
+                            <h4>Legenda</h4>
+                            <ul class="custom-legend">
+                                <li><span class="color-box" style="background: #2563eb;"></span> Atendimento a Agência
+                                </li>
+                                <li><span class="color-box" style="background: #10b981;"></span> Atendimento a BDN</li>
+                                <li><span class="color-box" style="background: #d2b48c;"></span> Atendimento Técnico
+                                </li>
+                                <li><span class="color-box" style="background: #fbcfe8;"></span> Depósitos e Saques</li>
+                                <li><span class="color-box" style="background: #9ca3af;"></span> Atendimentos Sicoobs
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-container-wrapper">
+                    <div class="chart-card">
+                        <h3>Visão Geral de Serviços</h3>
+                        <div class="chart-box">
+                            <canvas id="servicesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Services List View -->
+            <div id="services-view" class="view" style="display: none;">
+                <div class="table-card">
+                    <div class="table-header-tools">
+                        <div class="search-box">
+                            <span class="material-icons-round">search</span>
+                            <input type="text" id="searchInput" placeholder="Buscar serviços..."
+                                onkeyup="filterTable()">
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Tipo</th>
+                                    <th>ID Serviço</th>
+                                    <th>Cliente / Local</th>
+                                    <th>Qtd.</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="servicesTableBody">
+                                <!-- Data will be injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for Adding Service -->
+    <div id="serviceModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Novo Serviço</h3>
+                <button class="close-btn" onclick="closeModal()">
+                    <span class="material-icons-round">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="serviceForm" onsubmit="handleFormSubmit(event)">
+                    <div class="form-group">
+                        <label>Data</label>
+                        <input type="date" id="inputDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de Serviço</label>
+                        <input type="text" id="inputType" placeholder="Ex: BDN, Sicoob" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ID Serviço</label>
+                        <input type="text" id="inputId" placeholder="Opcional">
+                    </div>
+                    <div class="form-group">
+                        <label>Cliente / Local</label>
+                        <input type="text" id="inputClient" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantidade</label>
+                        <input type="number" id="inputQuantity" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/initial-data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
