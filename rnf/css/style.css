@@ -434,8 +434,9 @@ body {
     .sidebar {
         width: 100%;
         height: auto;
-        position: relative;
-        /* Stays at top of flex column */
+        position: sticky;
+        /* Make header sticky */
+        top: 0;
         padding: 0.75rem 1rem;
         flex-direction: row;
         justify-content: space-between;
@@ -443,6 +444,10 @@ body {
         border-right: none;
         border-bottom: 1px solid var(--border);
         z-index: 1000;
+        background: var(--surface);
+        /* Ensure background is opaque over content */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        /* Add subtle shadow */
     }
 
     .brand {
@@ -450,25 +455,32 @@ body {
     }
 
     .brand h1 {
-        font-size: 1.25rem;
+        font-size: 1.1rem;
+        /* Slightly smaller to fit */
     }
 
-    /* Keep Nav compact/horizontal or hide non-essentials */
+    /* Make Tabs Visible */
     .nav-menu {
         flex-direction: row;
         gap: 0.5rem;
-        flex: 0;
+        flex: 1;
+        /* Allow it to take visible space if needed, or wrap */
+        justify-content: flex-end;
+        /* Push to right or center */
     }
 
     .nav-item {
-        padding: 0.5rem;
-        font-size: 0;
-        /* Hide text, show icon only for space */
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+        /* Restore text visibility */
+        background: transparent;
+        white-space: nowrap;
+        /* Prevent wrapping text inside button */
     }
 
     .nav-item span {
-        margin-right: 0;
-        font-size: 1.5rem;
+        margin-right: 0.5rem;
+        font-size: 1.2rem;
     }
 
     .user-profile {
@@ -488,8 +500,32 @@ body {
     }
 
     .top-bar {
+        display: flex;
+        /* Restore top bar */
+        flex-direction: column;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .top-bar #page-title {
         display: none;
-        /* Hide 'Dashboard' title on mobile to save space, User prioritized RENAFORTE */
+        /* Hide page title duplicated by tabs/context */
+    }
+
+    .actions {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        /* Keep buttons side by side if they fit, or stack */
+        gap: 0.5rem;
+    }
+
+    .btn {
+        flex: 1;
+        /* Stretch buttons */
+        justify-content: center;
+        font-size: 0.85rem;
+        padding: 0.6rem;
     }
 
     .table-responsive {
