@@ -1,2 +1,2 @@
 # RNF
-https://grlti.github.io/rnf/rnf/index
+https://grlti.github.io/rnf/rnf/
