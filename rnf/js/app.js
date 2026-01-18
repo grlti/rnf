@@ -293,7 +293,7 @@ async function exportPDF() {
             scale: 2,
             useCORS: true,
             logging: false,
-            windowWidth: element.scrollWidth,
+            windowWidth: 1200, // Force desktop width for PDF report layout
             windowHeight: element.scrollHeight
         });
 
